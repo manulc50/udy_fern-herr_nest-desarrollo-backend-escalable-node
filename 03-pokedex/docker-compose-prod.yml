@@ -1,0 +1,32 @@
+version: '3'
+
+# Comando: "docker compose -f .\docker-compose-prod.yml --env-file .env.prod up -d"
+
+services:
+  pokedexapp:
+    image: pokedex-docker
+    container_name: pokedexapp
+    build: 
+      context: .
+      #dockerfile: Dockerfile
+    ports:
+      - "${PORT}:${PORT}"
+    # working_dir: /var/www/pokedex
+    environment:
+      MONGODB_URL: ${MONGODB_URL}
+      PORT: ${PORT}
+      DEFAULT_LIMIT: ${DEFAULT_LIMIT}
+    # volumes:
+    #   - ./:/var/www/pokedex
+    restart: unless-stopped # reiniciar el contenedor si se detiene excepto si se detiene manualmente
+    depends_on:
+      - db
+  db:
+    image: mongo:6.0
+    container_name: mongo-poke
+    ports:
+      - 27017:27017
+    environment:
+      MONGODB_DATABASE: nest-pokemon
+    volumes:
+      - ./mongo:/data/db
